@@ -38,7 +38,7 @@ menu() {
 
   2)
     echo -e "\nUser: $USER\n"
-    memory_usage #| sort -k2 -n | awk '{printf "%-10s%-0.1f\n", $1, $2}' | column -t
+    memory_usage
     ;;
 
   3)
@@ -47,7 +47,7 @@ menu() {
     ;;
 
   4)
-    echo -e "\nNot Implemented yet."
+    find_and_run_executable
     ;;
 
   *)
@@ -128,15 +128,32 @@ file_manipulations() {
 }
 
 memory_usage() {
-  echo -e "System resources in use:\n"
+  echo -e "System resources in use: \n"
 
   (
     echo -e "${DARK_GRAY}user rss(KiB) vmem(KiB)${NC}"
     for user in $(users | tr ' ' '\n' | sort -u); do
-      echo "$user" "$(ps -U "$user" --no-headers -o rss,vsz |
+      echo "$user" "$(ps -U "$user" --no-headers -o rss,vsz | # Iterate through each user and echo their memory usage. RSS is resident set size, VSZ is virtual memory size.
         awk '{rss+=$1; vmem+=$2} END{print rss" "vmem}')"
-    done | grep "$USER"
+    done | grep "$USER" # Only show the current user.
   ) | column -t
+}
+
+find_and_run_executable() {
+  echo -e "\n"
+  read -rp "Enter an executable name: " REPLY
+
+  if ! which "$REPLY" >/dev/null 2>&1; then # Reroute stderr to stdout and combined output to /dev/null
+    echo -e "\nThe executable with that name does not exist!"
+    return
+  else
+    echo -ne "\nLocated in: "
+    which "$REPLY"
+    echo -e "\n"
+    read -rp "Enter arguments: " arguments
+    echo -e "\n"
+    "$REPLY" "$arguments"
+  fi
 }
 
 # While loop for execution
