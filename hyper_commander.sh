@@ -32,13 +32,13 @@ menu() {
     ;;
 
   1)
-    echo -e "\n"
+    echo -e "\n" #TODO: Flesh out behaviour.
     uname -no
     ;;
 
   2)
-    echo -e "\n"
-    whoami
+    echo -e "\nUser: $USER\n"
+    memory_usage #| sort -k2 -n | awk '{printf "%-10s%-0.1f\n", $1, $2}' | column -t
     ;;
 
   3)
@@ -56,7 +56,7 @@ menu() {
   esac
 }
 
-# Function to handle file and directory operations
+# Function to handle file and directory operations. TODO: add more options
 file_and_dir_operations() {
   files_and_dirs=(*)
   echo -e "\nThe list of files and directories:"
@@ -91,6 +91,7 @@ file_and_dir_operations() {
   fi
 }
 
+# function to handle file manipulations. Gets called from file_and_dir_operations. TODO: add more options
 file_manipulations() {
 
   echo -e "\n---------------------------------------------------------------------"
@@ -111,12 +112,12 @@ file_manipulations() {
     echo -e "\n$input has been renamed to $new_name."
     file_and_dir_operations
   elif [[ "$answer" == "3" ]]; then
-    chmod 666 "$input"
+    chmod 666 "$input" # set permissions to read and write for user, group, and others
     echo -e "\nPermissions have been updated.\n"
     ls -l "$input"
     file_and_dir_operations
   elif [[ "$answer" == "4" ]]; then
-    chmod 664 "$input"
+    chmod 664 "$input" # set permissions to read and write for user and group, read for others
     echo -e "\nPermissions have been updated.\n"
     ls -l "$input"
     file_and_dir_operations
@@ -124,6 +125,18 @@ file_manipulations() {
     echo -e "\nInvalid input!"
     file_manipulations
   fi
+}
+
+memory_usage() {
+  echo -e "System resources in use:\n"
+
+  (
+    echo -e "${DARK_GRAY}user rss(KiB) vmem(KiB)${NC}"
+    for user in $(users | tr ' ' '\n' | sort -u); do
+      echo "$user" "$(ps -U "$user" --no-headers -o rss,vsz |
+        awk '{rss+=$1; vmem+=$2} END{print rss" "vmem}')"
+    done | grep "$USER"
+  ) | column -t
 }
 
 # While loop for execution
