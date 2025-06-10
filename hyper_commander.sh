@@ -26,11 +26,13 @@ menu() {
     ;;
 
   1)
-    echo -e "\nNot Implemented yet."
+    echo -e "\n"
+    uname -no
     ;;
 
   2)
-    echo -e "\nNot Implemented yet."
+    echo -e "\n"
+    whoami
     ;;
 
   3)
