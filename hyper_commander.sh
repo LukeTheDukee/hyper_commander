@@ -3,6 +3,9 @@
 # colors
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+LIGHT_BLUE='\033[1;34m'
+LIGHT_GRAY='\033[1;36m'
+DARK_GRAY='\033[0;36m'
 
 echo -e "Hello $USER"
 
@@ -10,17 +13,16 @@ echo -e "Hello $USER"
 menu() {
 
   echo -e "\n"
+  echo -e " ${LIGHT_BLUE}Hyper Commander       ${NC}"
   echo -e "------------------------------"
-  echo -e "| Hyper Commander            |"
-  echo -e "| 0: Exit                    |"
-  echo -e "| 1: OS Info                 |"
-  echo -e "| 2: User Info               |"
-  echo -e "| 3: File and Dir operations |"
-  echo -e "| 4: Find executables        |"
+  echo -e "| ${RED}0${NC}: Exit                    |"
+  echo -e "| ${RED}1${NC}: OS Info                 |"
+  echo -e "| ${RED}2${NC}: User Info               |"
+  echo -e "| ${RED}3${NC}: File and Dir operations |"
+  echo -e "| ${RED}4${NC}: Find executables        |"
   echo -e "------------------------------"
 
-  echo -ne "\n Enter your choice: "
-  read -r choice
+  read -rp "Enter your choice: " choice
 
   case $choice in
 
@@ -61,9 +63,9 @@ file_and_dir_operations() {
 
   for item in "${files_and_dirs[@]}"; do
     if [[ -f "$item" ]]; then
-      echo "F $item"
+      echo -e "${LIGHT_GRAY}F${NC} $item"
     elif [[ -d "$item" ]]; then
-      echo "D $item"
+      echo -e "${DARK_GRAY}D${NC} $item"
     fi
   done
 
@@ -82,14 +84,46 @@ file_and_dir_operations() {
     cd "$input" || echo "Failed to change directory to $input."
     file_and_dir_operations
   elif [[ -f "$input" ]]; then
-    echo -e "\nFile content of $input:"
-    cat "$input"
-    file_and_dir_operations
+    file_manipulations
   else
     echo -e "\nInvalid input!"
     file_and_dir_operations
   fi
+}
 
+file_manipulations() {
+
+  echo -e "\n---------------------------------------------------------------------"
+  echo -e "| ${RED}0${NC} Back | ${RED}1${NC} Delete | ${RED}2${NC} Rename | ${RED}3${NC} Make Writable | ${RED}4${NC} Make read-only |"
+  echo -e "---------------------------------------------------------------------"
+
+  read -r answer
+
+  if [[ "$answer" == "0" ]]; then
+    file_and_dir_operations
+  elif [[ "$answer" == "1" ]]; then
+    /bin/rm "$input"
+    echo -e "\n$input has been deleted."
+    file_and_dir_operations
+  elif [[ "$answer" == "2" ]]; then
+    read -rp "Enter new name for $input: " new_name
+    mv "$input" "$new_name"
+    echo -e "\n$input has been renamed to $new_name."
+    file_and_dir_operations
+  elif [[ "$answer" == "3" ]]; then
+    chmod 666 "$input"
+    echo -e "\nPermissions have been updated.\n"
+    ls -l "$input"
+    file_and_dir_operations
+  elif [[ "$answer" == "4" ]]; then
+    chmod 664 "$input"
+    echo -e "\nPermissions have been updated.\n"
+    ls -l "$input"
+    file_and_dir_operations
+  else
+    echo -e "\nInvalid input!"
+    file_manipulations
+  fi
 }
 
 # While loop for execution
