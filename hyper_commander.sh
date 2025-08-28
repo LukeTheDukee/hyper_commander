@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# This program is a simple command line file manager and system info tool.
+# It allows users to navigate directories, perform file operations, view system info, and find and
+# start executables. It is designed to be lightweight and easy to use. It was created as a learning project
+# as part of the Jetbrains Academy Bash course.
+
 # colors
 RED='\033[0;31m'
 NC='\033[0m' # No Color
@@ -24,34 +29,34 @@ menu() {
 
   read -rp "Enter your choice: " choice
 
-  case $choice in
+  case $choice in # switch case for menu options
 
   0)
-    echo -e "\n Exiting..."
+    echo -e "\n Exiting..." # exit option
     exit 0
     ;;
 
   1)
     echo -e "\n" #TODO: Flesh out behaviour.
-    uname -no
+    uname -no    # OS name and kernel version
     ;;
 
   2)
-    echo -e "\nUser: $USER\n"
+    echo -e "\nUser: $USER\n" # Memeory usage by user
     memory_usage
     ;;
 
   3)
-    echo -e "\n"
+    echo -e "\n" # Simple file and directory operations inspired by Norton Commander. TODO: add more options
     file_and_dir_operations
     ;;
 
   4)
-    find_and_run_executable
+    find_and_run_executable # Find and run executables.
     ;;
 
   *)
-    echo -e "\nInvalid choice. Please try again."
+    echo -e "\nInvalid choice. Please try again." # Default case for invalid input
     ;;
   esac
 }
@@ -78,15 +83,15 @@ file_and_dir_operations() {
   if [[ "$input" == "0" ]]; then
     return # Go back to the main menu
   elif [[ "$input" == [Uu]p ]]; then
-    cd .. || echo "Failed to change directory to parent."
-    file_and_dir_operations
-  elif [[ -d "$input" ]]; then
-    cd "$input" || echo "Failed to change directory to $input."
-    file_and_dir_operations
-  elif [[ -f "$input" ]]; then
-    file_manipulations
+    cd .. || echo "Failed to change directory to parent."       # Execute command or trhwow error
+    file_and_dir_operations                                     # recursively call function to refresh view
+  elif [[ -d "$input" ]]; then                                  # if directory, change to it
+    cd "$input" || echo "Failed to change directory to $input." # Execute command or throw error
+    file_and_dir_operations                                     # Recursively call function to refresh view
+  elif [[ -f "$input" ]]; then                                  # if file, offer manipulations
+    file_manipulations                                          # send to file manipulations function
   else
-    echo -e "\nInvalid input!"
+    echo -e "\nInvalid input!" # Invalid input handling
     file_and_dir_operations
   fi
 }
@@ -127,6 +132,7 @@ file_manipulations() {
   fi
 }
 
+# Memory usage function to display memory usage by user
 memory_usage() {
   echo -e "System resources in use: \n"
 
@@ -139,6 +145,7 @@ memory_usage() {
   ) | column -t
 }
 
+# Function to find and run executables
 find_and_run_executable() {
   echo -e "\n"
   read -rp "Enter an executable name: " REPLY
